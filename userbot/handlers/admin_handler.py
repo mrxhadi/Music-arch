@@ -3,7 +3,7 @@ from database.songs_db import load_songs
 
 DB_PATH = "songs.json"
 
-async def handle_admin_commands(event):
+async def handle_admin_commands(event, client):
     print(f"Received command: {event.text}")  # پرینت برای مشاهده دستور دریافتی
 
     if event.text == "/list":
