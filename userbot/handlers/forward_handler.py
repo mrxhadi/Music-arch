@@ -5,15 +5,17 @@ from telethon import TelegramClient
 X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
 
 async def forward_to_inlinebot(client):
-    # دریافت آیدی کانال از متغیر محیطی
+    # استفاده از آیدی عددی کانال x_archive
     channel = await client.get_entity(X_ARCHIVE_CHANNEL_ID)
-    # دریافت آخرین ۱۰ پیام از کانال
+    
+    # دریافت پیام‌های آخر از کانال
     messages = await client.get_messages(channel, limit=10)
 
     for message in messages:
-        if message.audio:  # فقط آهنگ‌ها رو فوروارد می‌کنیم
+        # فقط پیام‌هایی که شامل فایل صوتی هستند (آهنگ‌ها)
+        if message.audio:
             try:
-                # ارسال فایل‌ها به پیوی Inlinebot
+                # ارسال به پیوی Inlinebot
                 await client.send_message(
                     'me',  # ارسال به پیوی خود Inlinebot
                     message
@@ -21,3 +23,10 @@ async def forward_to_inlinebot(client):
                 print(f"Forwarded song with message_id {message.id} to Inlinebot's private chat.")
             except Exception as e:
                 print(f"Error forwarding song {message.id}: {e}")
+
+# اجرای تابع
+async def main(client):
+    await forward_to_inlinebot(client)
+
+# برای استفاده از این تابع در پروژه
+await main(client)
