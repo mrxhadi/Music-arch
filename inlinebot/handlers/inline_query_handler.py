@@ -1,30 +1,39 @@
 import json
 from aiogram import types
+from aiogram.types import InlineQueryResultCachedAudio
 
 DB_PATH = "songs.json"
 
-def load_songs():
-    with open(DB_PATH, "r", encoding="utf-8") as db_file:
-        return json.load(db_file)
-
 async def handle_inline_query(inline_query: types.InlineQuery, bot):
-    query = inline_query.query.strip().lower()
+    query = inline_query.query.strip()
+    
+    # بررسی حداقل ۳ حرف
+    if len(query) < 3:
+        await inline_query.answer(
+            results=[],
+            switch_pm_text="حداقل ۳ حرف وارد کنید.",
+            switch_pm_parameter="start",
+            cache_time=1
+        )
+        return
 
-    songs = load_songs()
-    if query:
-        matched_songs = [
-            song for song in songs
-            if query in song["title"].lower() or query in song["singer"].lower()
-        ]
-    else:
-        matched_songs = songs
+    # لود دیتابیس
+    with open(DB_PATH, "r", encoding="utf-8") as db_file:
+        songs = json.load(db_file)
 
+    # فیلتر آهنگ‌ها
+    matched_songs = [
+        song for song in songs
+        if query.lower() in song["title"].lower() or query.lower() in song["singer"].lower()
+    ]
+
+    # محدود به ۱۰ نتیجه
     results = []
-    for index, song in enumerate(matched_songs[:10]):  # محدود به 10 نتیجه
+    for idx, song in enumerate(matched_songs[:10]):
         try:
             results.append(
-                types.InlineQueryResultCachedAudio(
-                    id=str(index),
+                InlineQueryResultCachedAudio(
+                    id=str(idx),
                     audio_file_id=song["file_id"],
                     caption=f"{song['title']} - {song['singer']}"
                 )
@@ -32,8 +41,8 @@ async def handle_inline_query(inline_query: types.InlineQuery, bot):
         except Exception as e:
             print(f"[INLINEBOT] Skipped song '{song['title']}' due to error: {e}")
 
-    await bot.answer_inline_query(
-        inline_query.id,
+    # ارسال نتایج
+    await inline_query.answer(
         results=results,
         cache_time=1
     )
