@@ -25,17 +25,20 @@ async def new_message_handler(event):
 
 @client.on(events.NewMessage(from_users=ADMIN_ID))
 async def admin_commands_handler(event):
-    await handle_admin_commands(event, client)
+    text = event.text
+    print(f"[USERBOT] Admin command received: {text}")
+
+    if text == "/list":
+        await handle_admin_commands(event, client)
+    elif text == "/rebuild":
+        await rebuild_database(client, event)
+    else:
+        await event.reply("Unknown command.")
 
 
 @client.on(events.MessageDeleted())
 async def deleted_message_handler(event):
     await handle_deleted_message(event)
-
-
-@client.on(events.NewMessage(from_users=ADMIN_ID, pattern="/rebuild"))
-async def rebuild_handler(event):
-    await rebuild_database(client, event)
 
 
 async def main():
