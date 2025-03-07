@@ -1,20 +1,21 @@
 import os
-from aiogram.types import Message
 from aiogram import types
 from database.songs_db import add_song
 
-# گروه مشترک، بررسی اینکه پیام مربوط به گروه است
-GROUP_ID = int(os.getenv("GROUP_ID"))  # از GROUP_ID در متغیر محیطی استفاده می‌کنیم
+# تغییرات برای پردازش پیام
+async def handle_new_song(message: types.Message):
+    # بررسی اینکه پیام شامل فایل صوتی یا داکیومنت است
+    if not message.audio and not message.document:
+        return  # اگر پیام آهنگ یا فایل نداشته باشد، هیچ کاری انجام نمی‌دهد
 
-async def handle_new_song(message: Message):
-    # اگر پیام شامل audio باشد
+    # اگر پیام فایل صوتی باشد
     if message.audio:
         # استخراج مشخصات آهنگ
         title = message.audio.title or "Unknown Title"
         singer = message.audio.performer or "Unknown Singer"
         duration = message.audio.duration or 0
         file_id = message.audio.file_id
-    # اگر پیام شامل document (که می‌تواند یک فایل صوتی باشد)
+    # اگر پیام شامل یک فایل باشد (مستندات)
     elif message.document:
         if 'audio' in message.document.mime_type:
             title = message.document.attributes[0].title or "Unknown Title"
