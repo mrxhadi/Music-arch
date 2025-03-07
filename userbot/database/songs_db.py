@@ -1,9 +1,7 @@
 import os
 import json
-import asyncio
 
 DB_PATH = "songs.json"
-INLINEBOT_ID = int(os.getenv("INLINEBOT_ID"))
 
 # ساخت دیتابیس اگر نبود
 def create_db_if_not_exists():
@@ -18,8 +16,8 @@ def load_songs():
     with open(DB_PATH, "r", encoding="utf-8") as db_file:
         return json.load(db_file)
 
-# افزودن آهنگ جدید و ارسال دیتابیس بعد از 30 دقیقه
-def add_song(title, singer, file_id, duration, channel, message_id, client):
+# افزودن آهنگ جدید
+def add_song(title, singer, file_id, duration, channel, message_id):
     songs = load_songs()
     songs.append({
         "title": title,
@@ -31,23 +29,6 @@ def add_song(title, singer, file_id, duration, channel, message_id, client):
     })
     with open(DB_PATH, "w", encoding="utf-8") as db_file:
         json.dump(songs, db_file, ensure_ascii=False, indent=4)
-
-    # راه‌اندازی تایمر ارسال دیتابیس
-    asyncio.create_task(delayed_send_db(client))
-
-
-async def delayed_send_db(client):
-    await asyncio.sleep(1800)  # 1800 ثانیه = 30 دقیقه
-    try:
-        await client.send_file(
-            INLINEBOT_ID,
-            DB_PATH,
-            caption="Updated songs.json database."
-        )
-        print("Database sent to Inlinebot successfully.")
-    except Exception as e:
-        print(f"Error sending database to Inlinebot: {e}")
-
 
 # حذف آهنگ از دیتابیس با message_id و channel
 def remove_song(message_id, channel):
