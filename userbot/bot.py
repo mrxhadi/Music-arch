@@ -1,6 +1,7 @@
 import asyncio
 import os
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 from dotenv import load_dotenv
 from database.songs_db import add_song, load_songs
 from handlers.message_handler import handle_new_song
@@ -14,8 +15,9 @@ load_dotenv()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
+SESSION_STRING = os.getenv("SESSION_STRING")
 
-client = TelegramClient('bott', API_ID, API_HASH)
+client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
 
 
 @client.on(events.NewMessage)
