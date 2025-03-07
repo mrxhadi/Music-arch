@@ -15,11 +15,14 @@ async def handle_admin_commands(event, client):
         return
 
     # آپدیت دیتابیس با فایل
-    if event.file and event.file.name == "songs.json":
-        await event.download_media(file=DB_PATH)
-        songs = load_songs()
-        print(f"[USERBOT] Database updated with {len(songs)} songs.")
-        await event.reply(f"Database updated with {len(songs)} songs.")
+    if event.document:
+        if event.document.attributes and event.document.attributes[0].file_name == "songs.json":
+            await event.download_media(file=DB_PATH)
+            songs = load_songs()
+            print(f"[USERBOT] Database updated with {len(songs)} songs.")
+            await event.reply(f"Database updated with {len(songs)} songs.")
+        else:
+            await event.reply("Invalid file. Please send the 'songs.json' file.")
         return
 
     # ارسال دیتابیس
