@@ -2,6 +2,7 @@ import os
 import json
 from aiogram import types
 from aiogram.types import FSInputFile
+from database.songs_db import create_db_if_not_exists  # ایمپورت تابع ایجاد دیتابیس
 
 DB_PATH = "songs.json"
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
@@ -20,7 +21,10 @@ async def handle_admin_commands(message: types.Message):
     if message.text.strip() == "/list":  # از strip() برای حذف فاصله اضافی استفاده می‌کنیم
         print(f"[ADMIN_HANDLER] /list command received from {message.from_user.id}")
 
-        # چک کردن و ساخت دیتابیس اگر نبود
+        # بررسی و ساخت دیتابیس اگر نبود
+        create_db_if_not_exists()  # اگر دیتابیس موجود نیست، ساخته می‌شود
+
+        # چک کردن و ارسال دیتابیس
         if not os.path.exists(DB_PATH):
             await message.reply("دیتابیس پیدا نشد.")
             return
