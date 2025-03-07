@@ -1,35 +1,44 @@
 import os
-from aiogram import types
-from database.songs_db import load_songs, add_song
+import json
+from telethon.tl.types import DocumentAttributeAudio
+from database.songs_db import add_song
 
-GROUP_ID = int(os.getenv("GROUP_ID"))
+X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
 
-async def handle_new_song(message: types.Message):
-    if message.chat.id != GROUP_ID:
-        return
+async def handle_new_song(event, client):
+    message = event.message
 
-    document = message.document
-    if not document:
-        return  # اگر پیام اصلاً داکیومنت نبود، خروج
+    if not message.audio and not message.document:
+        return  # اگر پیام آهنگ یا فایل صوتی نبود، خروج
 
-    # بررسی اینکه داکیومنت، آهنگ است
-    audio_attr = next(
-        (attr for attr in document.attributes if attr.type == "audio"),
-        None
+    # اگر فایل صوتی باشد
+    if message.audio:
+        audio = message.audio
+    elif message.document:
+        audio = message.document
+
+    title = "Unknown Title"
+    singer = "Unknown Singer"
+    duration = 0
+
+    # استخراج اطلاعات از attributes اگر موجود باشند
+    if isinstance(audio, DocumentAttributeAudio):
+        title = audio.title or title
+        singer = audio.performer or singer
+        duration = audio.duration or duration
+
+    file_id = audio.file_reference.hex() if hasattr(audio, 'file_reference') else audio.id
+    channel = await event.get_chat()
+    channel_username = channel.username or "Private Channel"
+    message_id = message.id
+
+    # فوروارد آهنگ به کانال x_archive برای ثبت رسمی فایل
+    await client.send_file(
+        entity=X_ARCHIVE_CHANNEL_ID,
+        file=message.media,
+        caption=f"{title} - {singer}"
     )
-    if not audio_attr:
-        return  # اگه داکیومنت، آهنگ نبود خروج
 
-    title = audio_attr.title or "Unknown Title"
-    singer = audio_attr.performer or "Unknown Singer"
-    duration = audio_attr.duration or 0
-    file_id = document.file_id
-
-    # جلوگیری از ثبت تکراری بر اساس file_id
-    songs = load_songs()
-    if any(song["file_id"] == file_id for song in songs):
-        print(f"[INLINEBOT] Duplicate song ignored: {title}")
-        return
-
-    add_song(title, singer, file_id, duration)
-    print(f"[INLINEBOT] New song added to database: {title} - {singer}")
+    # ثبت در دیتابیس
+    add_song(title, singer, file_id, duration, channel_username, message_id)
+    print(f"[INLINEBOT] New song added: {title} by {singer}") که 
