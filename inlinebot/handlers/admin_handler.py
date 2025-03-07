@@ -17,7 +17,9 @@ async def handle_admin_commands(message: types.Message):
     print(f"[ADMIN_HANDLER] Received message: {message.text} from {message.from_user.id}")
 
     # چک کردن دستور /list
-    if message.text.strip() == "/list":
+    if message.text.strip() == "/list":  # از strip() برای حذف فاصله اضافی استفاده می‌کنیم
+        print(f"[ADMIN_HANDLER] /list command received from {message.from_user.id}")
+
         # چک کردن و ساخت دیتابیس اگر نبود
         if not os.path.exists(DB_PATH):
             await message.reply("دیتابیس پیدا نشد.")
