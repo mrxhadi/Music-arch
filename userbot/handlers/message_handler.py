@@ -50,7 +50,6 @@ async def handle_new_song(event, client):
         await client.send_file(
             entity=GROUP_ID,
             file=message.media,
-            caption=f"{title} - {singer}"
         )
 
     add_song(title, singer, file_id, duration, chat_id, message_id)
