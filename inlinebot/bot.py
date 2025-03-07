@@ -2,7 +2,6 @@ import os
 import json
 from aiogram import Bot, Dispatcher, executor, types
 
-# متغیرهای محیطی
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DB_PATH = "songs.json"
 
