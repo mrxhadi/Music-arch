@@ -47,3 +47,12 @@ async def delayed_send_db(client):
         print("Database sent to Inlinebot successfully.")
     except Exception as e:
         print(f"Error sending database to Inlinebot: {e}")
+
+
+# حذف آهنگ از دیتابیس با message_id و channel
+def remove_song(message_id, channel):
+    songs = load_songs()
+    updated_songs = [song for song in songs if not (song["message_id"] == message_id and song["channel"] == channel)]
+    with open(DB_PATH, "w", encoding="utf-8") as db_file:
+        json.dump(updated_songs, db_file, ensure_ascii=False, indent=4)
+    print(f"Song with message_id {message_id} from channel {channel} removed from database.")
