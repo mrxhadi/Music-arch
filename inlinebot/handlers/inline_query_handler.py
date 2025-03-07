@@ -9,31 +9,41 @@ def load_songs():
 
 async def handle_inline_query(inline_query: types.InlineQuery, bot):
     query = inline_query.query.lower()
-    songs = load_songs()
 
-    if query:
-        matched_songs = [
-            song for song in songs
-            if query in song["title"].lower() or query in song["singer"].lower()
-        ][:10]  # حداکثر 10 نتیجه برای جستجو
-    else:
-        matched_songs = songs[:10]  # فقط 10 آهنگ اول دیتابیس اگر جستجو خالی بود
-
-    print(f"[INLINEBOT] Inline query received: '{query}' - {len(matched_songs)} matches found.")
-
-    results = [
-        types.InlineQueryResultAudio(
-            id=str(index),
-            audio_file_id=song["file_id"],
-            title=song["title"],
-            performer=song["singer"],
-            duration=song["duration"]
+    # شرط حداقل 3 حرف
+    if len(query) < 3:
+        await bot.answer_inline_query(
+            inline_query.id,
+            results=[],
+            cache_time=1,
+            switch_pm_text="حداقل 3 حرف وارد کنید.",
+            switch_pm_parameter="start"
         )
-        for index, song in enumerate(matched_songs)
+        return
+
+    songs = load_songs()
+    matched_songs = [
+        song for song in songs
+        if query in song["title"].lower() or query in song["singer"].lower()
     ]
+
+    results = []
+    for index, song in enumerate(matched_songs[:10]):
+        try:
+            results.append(
+                types.InlineQueryResultAudio(
+                    id=str(index),
+                    audio_file_id=song["file_id"],
+                    title=song["title"],
+                    performer=song["singer"],
+                    duration=song["duration"]
+                )
+            )
+        except Exception as e:
+            print(f"[INLINEBOT] Skipped song '{song['title']}' due to error: {e}")
 
     await bot.answer_inline_query(
         inline_query.id,
         results=results,
-        cache_time=1  # کمترین کش برای تست سریع‌تر
+        cache_time=1
     )
