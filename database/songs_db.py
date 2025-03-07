@@ -3,6 +3,13 @@ import os
 
 DB_PATH = "songs.json"
 
+def create_db_if_not_exists():
+    if not os.path.exists(DB_PATH):
+        with open(DB_PATH, 'w', encoding='utf-8') as db_file:
+            json.dump([], db_file, ensure_ascii=False, indent=4)
+
+create_db_if_not_exists()
+
 def load_songs():
     if not os.path.exists(DB_PATH):
         with open(DB_PATH, "w", encoding="utf-8") as db_file:
@@ -26,3 +33,4 @@ def add_song(title, singer, file_id, duration, channel, message_id):
     }
     songs.append(song_data)
     save_songs(songs)
+
