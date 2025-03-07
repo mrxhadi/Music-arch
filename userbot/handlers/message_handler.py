@@ -45,5 +45,5 @@ async def handle_new_song(event, client):
         caption=f"{title} - {singer}"
     )
 
-    # ثبت در دیتابیس و راه‌اندازی تایمر ارسال دیتابیس
-    add_song(title, singer, file_id, duration, channel_username, message_id, client)
+    # ثبت در دیتابیس
+    add_song(title, singer, file_id, duration, channel_username, message_id)
