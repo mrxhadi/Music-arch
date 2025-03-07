@@ -21,12 +21,12 @@ async def new_message_handler(event):
 
 @client.on(events.NewMessage(from_users=ADMIN_ID))
 async def admin_commands_handler(event):
-    await handle_admin_commands(event)
+    await handle_admin_commands(event, client)
 
 async def main():
     await client.start()
-    print("Bot is running...")
-    await start_nightly_job(client)
+    print("Userbot is running...")
+    start_nightly_job(client)  # اصلاح شده: بدون await
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
