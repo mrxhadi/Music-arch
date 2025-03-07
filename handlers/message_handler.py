@@ -6,20 +6,18 @@ async def handle_new_song(event, client):
     message = event.message
 
     if not message.audio:
-        return  # اگه پیام آهنگ نبود، خروج
+        return  # اگر پیام آهنگ نبود، خروج
 
-    audio = message.audio
-
-    # مقادیر پیش‌فرض
+    audio = message.document  # چون Audio یک Document هست
     title = "Unknown Title"
     singer = "Unknown Singer"
-    duration = audio.duration
+    duration = 0
 
-    # استخراج اطلاعات از attributes
     for attr in audio.attributes:
         if isinstance(attr, DocumentAttributeAudio):
             title = attr.title or title
             singer = attr.performer or singer
+            duration = attr.duration or duration
 
     file_id = audio.file_reference.hex()
     channel = await event.get_chat()
@@ -37,5 +35,5 @@ async def handle_new_song(event, client):
     await asyncio.sleep(0.5)
     await message.delete()
 
-    # ذخیره آهنگ در دیتابیس
+    # ثبت در دیتابیس
     add_song(title, singer, file_id, duration, channel_username, message_id)
