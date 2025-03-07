@@ -16,22 +16,30 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 GROUP_ID = int(os.getenv("GROUP_ID"))
 
-# راه‌اندازی ربات
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
 dp = Dispatcher(storage=MemoryStorage())
 
-# تنظیمات Router
 router = Router()
 dp.include_router(router)
 
+@router.message()
+async def test_log(message: Message):
+    print(f"[INLINEBOT] Received message from chat ID: {message.chat.id}")
+
+# هندلر پیام‌های گروه مشترک
 @router.message(F.chat.id == GROUP_ID)
 async def group_message_handler(message: Message):
-    await handle_new_song(message)
+    await handle_new_song(message, bot)  # ارسال client (bot) به handle_new_song
 
+# هندلر دستورات ادمین (مثل /list)
 @router.message(F.text.startswith("/"))
 async def admin_command_handler(message: Message):
     await handle_admin_commands(message)
 
+# هندلر اینلاین مود
 @dp.inline_query()
 async def inline_query_handler(inline_query):
     await handle_inline_query(inline_query, bot)
