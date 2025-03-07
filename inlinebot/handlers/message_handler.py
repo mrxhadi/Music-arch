@@ -41,4 +41,4 @@ async def handle_new_song(event, client):
 
     # ثبت در دیتابیس
     add_song(title, singer, file_id, duration, channel_username, message_id)
-    print(f"[INLINEBOT] New song added: {title} by {singer}") که 
+    print(f"[INLINEBOT] New song added: {title} by {singer}")
