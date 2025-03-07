@@ -1,9 +1,9 @@
 import asyncio
 import os
 from telethon.tl.types import DocumentAttributeAudio
-from database.songs_db import add_song
+from database.songs_db import load_songs, add_song
 
-X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
+GROUP_ID = int(os.getenv("GROUP_ID"))
 
 async def handle_new_song(event, client):
     message = event.message
@@ -27,6 +27,12 @@ async def handle_new_song(event, client):
     channel_username = channel.username or "Private Channel"
     message_id = message.id
 
+    # جلوگیری از تکراری بودن
+    songs = load_songs()
+    if any(song["message_id"] == message_id and song["channel"] == channel_username for song in songs):
+        print(f"[USERBOT] Duplicate song ignored: {title}")
+        return
+
     # فوروارد آهنگ بدون کپشن
     await client.send_file(
         entity=event.chat_id,
@@ -38,12 +44,13 @@ async def handle_new_song(event, client):
     await asyncio.sleep(0.5)
     await message.delete()
 
-    # فوروارد آهنگ به کانال x_archive برای ثبت رسمی فایل
+    # ارسال آهنگ به گروه مشترک برای استفاده Inlinebot
     await client.send_file(
-        entity=X_ARCHIVE_CHANNEL_ID,
+        entity=GROUP_ID,
         file=message.media,
         caption=f"{title} - {singer}"
     )
 
     # ثبت در دیتابیس
     add_song(title, singer, file_id, duration, channel_username, message_id)
+    print(f"[USERBOT] New song saved and forwarded: {title} - {singer}")
