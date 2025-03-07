@@ -1,6 +1,9 @@
 import asyncio
+import os
 from telethon.tl.types import DocumentAttributeAudio
 from database.songs_db import add_song
+
+X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
 
 async def handle_new_song(event, client):
     message = event.message
@@ -8,7 +11,7 @@ async def handle_new_song(event, client):
     if not message.audio:
         return  # اگر پیام آهنگ نبود، خروج
 
-    audio = message.document  # چون Audio یک Document هست
+    audio = message.document
     title = "Unknown Title"
     singer = "Unknown Singer"
     duration = 0
@@ -34,6 +37,13 @@ async def handle_new_song(event, client):
     # حذف پیام اصلی
     await asyncio.sleep(0.5)
     await message.delete()
+
+    # فوروارد آهنگ به کانال x_archive برای ثبت رسمی فایل
+    await client.send_file(
+        entity=X_ARCHIVE_CHANNEL_ID,
+        file=message.media,
+        caption=f"{title} - {singer}"
+    )
 
     # ثبت در دیتابیس و راه‌اندازی تایمر ارسال دیتابیس
     add_song(title, singer, file_id, duration, channel_username, message_id, client)
