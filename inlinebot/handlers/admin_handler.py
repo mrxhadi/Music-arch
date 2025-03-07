@@ -13,10 +13,11 @@ async def handle_admin_commands(message: types.Message):
         await message.reply("شما دسترسی ندارید.")
         return
 
-    # لاگ دریافت دستور
-    print(f"[ADMIN_HANDLER] Received command from {message.from_user.id}: {message.text}")
+    # لاگ برای بررسی دریافت دستور
+    print(f"[ADMIN_HANDLER] Received message: {message.text} from {message.from_user.id}")
 
-    if message.text == "/list":
+    # چک کردن دستور /list
+    if message.text.strip() == "/list":
         # چک کردن و ساخت دیتابیس اگر نبود
         if not os.path.exists(DB_PATH):
             await message.reply("دیتابیس پیدا نشد.")
@@ -34,3 +35,5 @@ async def handle_admin_commands(message: types.Message):
             caption="دیتابیس فعلی آهنگ‌ها"
         )
         print(f"[ADMIN_HANDLER] Database sent to admin.")
+    else:
+        await message.reply("لطفاً دستور صحیح را وارد کنید.")
