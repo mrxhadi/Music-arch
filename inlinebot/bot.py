@@ -3,9 +3,9 @@ import os
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
 from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram import Router
-from aiogram import types
 from dotenv import load_dotenv
 from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
@@ -16,7 +16,10 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 GROUP_ID = int(os.getenv("GROUP_ID"))
 
-bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
 dp = Dispatcher(storage=MemoryStorage())
 
 router = Router()
@@ -34,7 +37,7 @@ async def admin_command_handler(message: Message):
 
 # هندلر اینلاین مود
 @dp.inline_query()
-async def inline_query_handler(inline_query: types.InlineQuery):
+async def inline_query_handler(inline_query):
     await handle_inline_query(inline_query, bot)
 
 async def main():
