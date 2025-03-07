@@ -9,7 +9,7 @@ async def handle_new_song(event, client):
     message = event.message
 
     if not message.audio:
-        return
+        return  # اگر پیام آهنگ نبود، خروج
 
     audio = message.document
     title = "Unknown Title"
@@ -27,16 +27,24 @@ async def handle_new_song(event, client):
     message_id = message.id
 
     songs = load_songs()
-    duplicate = next((song for song in songs if song["title"] == title and song["channel_id"] == chat_id), None)
+    duplicate = next(
+        (song for song in songs if song["title"] == title and song["channel_id"] == chat_id),
+        None
+    )
 
     if duplicate:
-        print(f"[USERBOT] Duplicate found: {title}. Removing old message and updating database.")
+        print(f"[USERBOT] Duplicate found in chat {chat_id}: {title}. Removing old message and updating database.")
         try:
-            await client.delete_messages(entity=chat_id, message_ids=duplicate["message_id"])
+            await client.delete_messages(
+                entity=chat_id,
+                message_ids=duplicate["message_id"]
+            )
+            print(f"[USERBOT] Old message {duplicate['message_id']} deleted.")
         except Exception as e:
             print(f"[USERBOT] Failed to delete old message: {e}")
         remove_song(duplicate["message_id"], chat_id)
 
+    # فوروارد آهنگ بدون کپشن در چنل اصلی
     await client.send_file(
         entity=chat_id,
         file=message.media,
@@ -46,11 +54,13 @@ async def handle_new_song(event, client):
     await asyncio.sleep(0.5)
     await message.delete()
 
-    if not duplicate:
-        await client.send_file(
-            entity=GROUP_ID,
-            file=message.media,
-        )
+    # ارسال آهنگ به گروه مشترک (بدون کپشن)
+    await client.send_file(
+        entity=GROUP_ID,
+        file=message.media,
+        caption=""
+    )
 
+    # ثبت آهنگ در دیتابیس
     add_song(title, singer, file_id, duration, chat_id, message_id)
-    print(f"[USERBOT] Song processed: {title} - {singer}")
+    print(f"[USERBOT] Song processed and added to DB: {title} - {singer}")
