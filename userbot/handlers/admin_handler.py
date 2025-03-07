@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from database.songs_db import load_songs
 from handlers.rebuild_handler import rebuild_database
+from telethon.tl.types import DocumentAttributeFilename
 
 load_dotenv()
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
@@ -14,22 +15,21 @@ async def handle_admin_commands(event, client):
         await event.reply("You are not authorized.")
         return
 
-    # اگر فایل ارسال شد
+    # بررسی فایل و نام فایل
     if event.document:
-        if event.document.file_name == "songs.json":
+        file_name = None
+        for attr in event.document.attributes:
+            if isinstance(attr, DocumentAttributeFilename):
+                file_name = attr.file_name
+                break
+
+        if file_name == "songs.json":
             await event.download_media(file=DB_PATH)
             songs = load_songs()
             print(f"[USERBOT] Database updated with {len(songs)} songs.")
             await event.reply(f"Database updated with {len(songs)} songs.")
-        else:
-            await event.reply("Invalid file. Please send only the 'songs.json' file.")
-        return  # برگشت برای جلوگیری از ادامه اجرای کد
+            return
 
-    # اگر متن پیام None بود (فقط فایل بود)، دیگه ادامه نده
-    if not event.text:
-        return
-
-    # دستورات متنی
     if event.text == "/list":
         print("[USERBOT] Processing '/list' command...")
         if os.path.exists(DB_PATH):
