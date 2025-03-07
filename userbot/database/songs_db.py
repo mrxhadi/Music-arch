@@ -29,6 +29,7 @@ def add_song(title, singer, file_id, duration, channel, message_id):
     })
     with open(DB_PATH, "w", encoding="utf-8") as db_file:
         json.dump(songs, db_file, ensure_ascii=False, indent=4)
+    print(f"[DB] Song added: {title} - {singer}")
 
 # حذف آهنگ از دیتابیس با message_id و channel
 def remove_song(message_id, channel):
@@ -36,4 +37,4 @@ def remove_song(message_id, channel):
     updated_songs = [song for song in songs if not (song["message_id"] == message_id and song["channel"] == channel)]
     with open(DB_PATH, "w", encoding="utf-8") as db_file:
         json.dump(updated_songs, db_file, ensure_ascii=False, indent=4)
-    print(f"Song with message_id {message_id} from channel {channel} removed from database.")
+    print(f"[DB] Song with message_id {message_id} from channel {channel} removed.")
