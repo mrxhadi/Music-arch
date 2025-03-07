@@ -25,6 +25,10 @@ dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 dp.include_router(router)
 
+@router.message()
+async def test_log(message: Message):
+    print(f"[INLINEBOT] Received message from chat ID: {message.chat.id}")
+
 # هندلر پیام‌های گروه مشترک
 @router.message(F.chat.id == GROUP_ID)
 async def group_message_handler(message: Message):
