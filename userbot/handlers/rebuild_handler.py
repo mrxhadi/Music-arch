@@ -42,7 +42,7 @@ async def rebuild_database(client, event):
                     "singer": singer,
                     "file_id": file_id,
                     "duration": duration,
-                    "channel": channel_id,  # اینجا به جای "channel_id"
+                    "channel_id": channel_id,  # اینجا به جای "channel_id"
                     "message_id": message_id
                 })
 
