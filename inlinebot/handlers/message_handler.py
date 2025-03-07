@@ -1,3 +1,4 @@
+import os
 from aiogram import types
 from database.songs_db import add_song
 
