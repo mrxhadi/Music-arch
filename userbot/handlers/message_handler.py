@@ -9,7 +9,7 @@ async def handle_new_song(event, client):
     message = event.message
 
     if not message.audio:
-        return  # اگر پیام آهنگ نبود، خروج
+        return  # Ignore non-audio messages
 
     audio = message.document
     title = "Unknown Title"
@@ -35,32 +35,28 @@ async def handle_new_song(event, client):
     if duplicate:
         print(f"[USERBOT] Duplicate found in chat {chat_id}: {title}. Removing old message and updating database.")
         try:
-            await client.delete_messages(
-                entity=chat_id,
-                message_ids=duplicate["message_id"]
-            )
+            await client.delete_messages(chat_id, duplicate["message_id"])
             print(f"[USERBOT] Old message {duplicate['message_id']} deleted.")
         except Exception as e:
             print(f"[USERBOT] Failed to delete old message: {e}")
         remove_song(duplicate["message_id"], chat_id)
 
-    # فوروارد آهنگ بدون کپشن در چنل اصلی
+    # Resend audio without caption in the original chat
     await client.send_file(
-        entity=chat_id,
-        file=message.media,
-        caption="",
+        chat_id,
+        message.media,
+        caption=""
     )
 
     await asyncio.sleep(0.5)
     await message.delete()
 
-    # ارسال آهنگ به گروه مشترک (بدون کپشن)
+    # Forward the audio to the shared group (without caption)
     await client.send_file(
-        entity=GROUP_ID,
+        GROUP_ID,
         file=message.media,
         caption=""
     )
 
-    # ثبت آهنگ در دیتابیس
     add_song(title, singer, file_id, duration, chat_id, message_id)
     print(f"[USERBOT] Song processed and added to DB: {title} - {singer}")
