@@ -14,7 +14,7 @@ async def handle_admin_commands(event, client):
         await event.reply("You are not authorized.")
         return
 
-    # آپدیت دیتابیس با فایل
+    # بررسی ارسال فایل دیتابیس
     if event.document:
         if event.document.attributes and event.document.attributes[0].file_name == "songs.json":
             await event.download_media(file=DB_PATH)
@@ -25,7 +25,7 @@ async def handle_admin_commands(event, client):
             await event.reply("Invalid file. Please send the 'songs.json' file.")
         return
 
-    # ارسال دیتابیس
+    # دستور ارسال دیتابیس
     if event.text == "/list":
         print("[USERBOT] Processing '/list' command...")
         if os.path.exists(DB_PATH):
@@ -35,12 +35,13 @@ async def handle_admin_commands(event, client):
             await event.reply("Database file not found.")
         return
 
-    # بازسازی دیتابیس
+    # دستور بازسازی دیتابیس
     if event.text == "/rebuild":
         print("[USERBOT] Processing '/rebuild' command...")
         await event.reply("Rebuilding the database, please wait...")
         await rebuild_database(client, event)
         return
 
+    # اگر نه فایل بود و نه دستور معتبر
     print("[USERBOT] Unknown command received.")
     await event.reply("Unknown command.")
