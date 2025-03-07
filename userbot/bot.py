@@ -7,6 +7,7 @@ from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
 from handlers.delete_handler import handle_deleted_message
 from scheduler.nightly_job import start_nightly_job
+from handlers.rebuild_handler import rebuild_database
 
 load_dotenv()
 
@@ -30,6 +31,11 @@ async def admin_commands_handler(event):
 @client.on(events.MessageDeleted())
 async def deleted_message_handler(event):
     await handle_deleted_message(event)
+
+
+@client.on(events.NewMessage(from_users=ADMIN_ID, pattern="/rebuild"))
+async def rebuild_handler(event):
+    await rebuild_database(client, event)
 
 
 async def main():
