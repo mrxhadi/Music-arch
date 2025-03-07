@@ -9,6 +9,9 @@ GROUP_ID = int(os.getenv("GROUP_ID"))
 async def handle_new_song(event, client):
     message = event.message
 
+    # لاگ برای بررسی اینکه پیام از گروه مشترک دریافت میشه یا نه
+    print(f"[INLINEBOT] Received message from chat ID: {message.chat.id}, Message: {message.text}")
+
     # بررسی اینکه آیا پیام شامل آهنگ است (یا فایل صوتی یا داکیومنت)
     if not message.audio and not message.document:
         return  # اگر پیام آهنگ یا فایل صوتی نبود، خروج
