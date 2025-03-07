@@ -14,7 +14,7 @@ API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
-client = TelegramClient('bot', API_ID, API_HASH)
+client = TelegramClient('bott', API_ID, API_HASH)
 
 
 @client.on(events.NewMessage)
