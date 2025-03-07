@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from database.songs_db import add_song, load_songs
 from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
+from handlers.delete_handler import handle_deleted_message
 from scheduler.nightly_job import start_nightly_job
 
 load_dotenv()
@@ -23,10 +24,14 @@ async def new_message_handler(event):
 async def admin_commands_handler(event):
     await handle_admin_commands(event, client)
 
+@client.on(events.MessageDeleted())
+async def deleted_message_handler(event):
+    await handle_deleted_message(event)
+
 async def main():
     await client.start()
     print("Userbot is running...")
-    start_nightly_job(client)  # اصلاح شده: بدون await
+    start_nightly_job(client)
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
