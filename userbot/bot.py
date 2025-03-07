@@ -6,6 +6,7 @@ from database.songs_db import add_song, load_songs
 from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
 from handlers.delete_handler import handle_deleted_message
+from handlers.forward_handler import forward_to_inlinebot  # ایمپورت هندلر فوروارد
 from scheduler.nightly_job import start_nightly_job
 
 load_dotenv()
@@ -27,6 +28,11 @@ async def admin_commands_handler(event):
 @client.on(events.MessageDeleted())
 async def deleted_message_handler(event):
     await handle_deleted_message(event)
+
+# فراخوانی تابع فوروارد
+@client.on(events.Read())
+async def forward_handler(event):
+    await forward_to_inlinebot(client)  # ارسال فایل‌ها به پیوی Inlinebot
 
 async def main():
     await client.start()
