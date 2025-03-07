@@ -29,10 +29,11 @@ async def admin_commands_handler(event):
 async def deleted_message_handler(event):
     await handle_deleted_message(event)
 
-# فراخوانی تابع فوروارد
-@client.on(events.Read())
+# فراخوانی تابع فوروارد فقط زمانی که پیامی دریافت شد
+@client.on(events.NewMessage)
 async def forward_handler(event):
-    await forward_to_inlinebot(client)  # ارسال فایل‌ها به پیوی Inlinebot
+    # فقط از کانال مشخص شده و پیام‌های صوتی فوروارد میشه
+    await forward_to_inlinebot(client)
 
 async def main():
     await client.start()
