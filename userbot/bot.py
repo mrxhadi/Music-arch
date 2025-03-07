@@ -27,12 +27,17 @@ async def new_message_handler(event):
 
 @client.on(events.NewMessage(from_users=ADMIN_ID))
 async def admin_commands_handler(event):
-    text = event.text
-    print(f"[USERBOT] Admin command received: {text}")
+    print(f"[USERBOT] Admin command received from {event.sender_id}")
 
-    if text == "/list":
+    # بررسی ارسال فایل دیتابیس
+    if event.document and event.file and event.file.name == "songs.json":
         await handle_admin_commands(event, client)
-    elif text == "/rebuild":
+        return
+
+    # بررسی دستورات متنی
+    if event.text == "/list":
+        await handle_admin_commands(event, client)
+    elif event.text == "/rebuild":
         await rebuild_database(client, event)
     else:
         await event.reply("Unknown command.")
