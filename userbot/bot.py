@@ -6,7 +6,6 @@ from database.songs_db import add_song, load_songs
 from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
 from handlers.delete_handler import handle_deleted_message
-from handlers.forward_handler import handle_forward  # اضافه شد
 from scheduler.nightly_job import start_nightly_job
 
 load_dotenv()
@@ -21,7 +20,6 @@ client = TelegramClient('bot', API_ID, API_HASH)
 @client.on(events.NewMessage)
 async def new_message_handler(event):
     await handle_new_song(event, client)
-    await handle_forward(event, client)  # اضافه شد
 
 
 @client.on(events.NewMessage(from_users=ADMIN_ID))
