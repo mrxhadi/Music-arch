@@ -8,9 +8,8 @@ def load_songs():
         return json.load(db_file)
 
 async def handle_inline_query(inline_query: types.InlineQuery, bot):
-    query = inline_query.query.lower()
+    query = inline_query.query.strip().lower()  # حذف فاصله‌های اضافی
 
-    # شرط حداقل 3 حرف
     if len(query) < 3:
         await bot.answer_inline_query(
             inline_query.id,
@@ -28,7 +27,7 @@ async def handle_inline_query(inline_query: types.InlineQuery, bot):
     ]
 
     results = []
-    for index, song in enumerate(matched_songs[:10]):
+    for index, song in enumerate(matched_songs[:20]):  # محدود به 10 نتیجه
         try:
             results.append(
                 types.InlineQueryResultAudio(
@@ -46,4 +45,4 @@ async def handle_inline_query(inline_query: types.InlineQuery, bot):
         inline_query.id,
         results=results,
         cache_time=1
-    )
+                )
