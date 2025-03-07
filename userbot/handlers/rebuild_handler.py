@@ -1,8 +1,7 @@
-from telethon.tl.types import DocumentAttributeAudio
-from database.songs_db import create_db_if_not_exists, add_song
 import os
 import json
 import asyncio
+from telethon.tl.types import DocumentAttributeAudio
 
 GROUP_ID = int(os.getenv("GROUP_ID"))
 
@@ -16,6 +15,7 @@ async def rebuild_database(client, event):
         if not dialog.is_channel:
             continue
         if dialog.entity.id == GROUP_ID:
+            print(f"[USERBOT] Skipping group ID: {GROUP_ID}")
             continue
 
         print(f"[USERBOT] Processing channel ID: {dialog.entity.id}")
@@ -42,13 +42,13 @@ async def rebuild_database(client, event):
                     "singer": singer,
                     "file_id": file_id,
                     "duration": duration,
-                    "channel_id": channel_id,
+                    "channel": channel_id,  # اینجا به جای "channel_id"
                     "message_id": message_id
                 })
 
-                await asyncio.sleep(0.2)  # تاخیر بین پیام‌ها
+                await asyncio.sleep(0.2)
 
-        await asyncio.sleep(2)  # تاخیر بین چنل‌ها
+        await asyncio.sleep(2)
 
     with open("songs.json", "w", encoding="utf-8") as db_file:
         json.dump(songs, db_file, ensure_ascii=False, indent=4)
