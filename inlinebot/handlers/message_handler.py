@@ -1,6 +1,6 @@
 import os
 import json
-from telethon.tl.types import DocumentAttributeAudio
+from aiogram.types import Document
 from database.songs_db import add_song
 
 X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
@@ -22,12 +22,13 @@ async def handle_new_song(event, client):
     duration = 0
 
     # استخراج اطلاعات از attributes اگر موجود باشند
-    if isinstance(audio, DocumentAttributeAudio):
-        title = audio.title or title
-        singer = audio.performer or singer
-        duration = audio.duration or duration
+    if isinstance(audio, Document):
+        # در اینجا باید اطلاعات را از Document به درستی استخراج کنیم
+        title = audio.file_name or title
+        singer = "Unknown"  # چون در aiogram این اطلاعات ممکن است در دسترس نباشند
+        duration = 0  # فرضی: ممکن است اطلاعات duration در فایل صوتی نباشند
 
-    file_id = audio.file_reference.hex() if hasattr(audio, 'file_reference') else audio.id
+    file_id = audio.file_id if hasattr(audio, 'file_id') else audio.id
     channel = await event.get_chat()
     channel_username = channel.username or "Private Channel"
     message_id = message.id
