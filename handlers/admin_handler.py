@@ -1,30 +1,25 @@
 import os
-import logging
 from database.songs_db import load_songs
-
-# تنظیمات لاگینگ
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 DB_PATH = "songs.json"
 
 async def handle_admin_commands(event):
-    logger.debug(f"Received message: {event.text}")  # چاپ پیام دریافتی
+    print(f"Received command: {event.text}")  # پرینت برای مشاهده دستور دریافتی
 
     if event.text == "/list":
-        logger.debug("Processing '/list' command...")  # نمایش در حال پردازش دستور '/list'
+        print("Processing '/list' command...")  # پرینت وقتی که دستور '/list' پردازش میشه
         if os.path.exists(DB_PATH):
-            logger.debug(f"Sending database: {DB_PATH}")  # چاپ مسیر دیتابیس
+            print(f"Sending database from: {DB_PATH}")  # پرینت مسیر دیتابیس
             await event.reply("Here is the songs database:", file=DB_PATH)
         else:
-            logger.debug("Database file not found.")  # نمایش اگر فایل دیتابیس پیدا نشد
+            print("Database file not found.")  # پرینت وقتی که دیتابیس پیدا نمی‌شود
             await event.reply("Database file not found.")
     
     elif event.file and event.file.name == "songs.json":
         await event.download_media(file=DB_PATH)
         songs = load_songs()
-        logger.debug(f"Database updated with {len(songs)} songs.")  # چاپ تعداد آهنگ‌های دیتابیس
+        print(f"Database updated with {len(songs)} songs.")  # پرینت تعداد آهنگ‌های دیتابیس
         await event.reply(f"Database updated with {len(songs)} songs.")
     else:
-        logger.debug("Unknown command received.")  # چاپ در صورت دریافت دستور ناشناخته
+        print("Unknown command received.")  # پرینت وقتی دستور ناشناخته دریافت می‌شود
         await event.reply("Unknown command.")
