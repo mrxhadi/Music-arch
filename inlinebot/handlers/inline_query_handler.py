@@ -1,4 +1,3 @@
-import os
 import json
 from aiogram import types
 
@@ -21,15 +20,13 @@ async def handle_inline_query(inline_query: types.InlineQuery, bot):
         matched_songs = songs
 
     results = []
-    for index, song in enumerate(matched_songs[:10]):  # فقط 10 نتیجه
+    for index, song in enumerate(matched_songs[:10]):  # محدود به 10 نتیجه
         try:
             results.append(
-                types.InlineQueryResultAudio(
+                types.InlineQueryResultCachedAudio(
                     id=str(index),
                     audio_file_id=song["file_id"],
-                    title=song["title"],
-                    performer=song["singer"],
-                    duration=song["duration"]
+                    caption=f"{song['title']} - {song['singer']}"
                 )
             )
         except Exception as e:
