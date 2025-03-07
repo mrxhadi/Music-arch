@@ -1,18 +1,27 @@
 import asyncio
-from telethon import events
+from telethon.tl.types import DocumentAttributeAudio
 from database.songs_db import add_song
 
 async def handle_new_song(event, client):
     message = event.message
 
     if not message.audio:
-        return  # اگر پیام آهنگ نبود، برگرد
+        return  # اگه پیام آهنگ نبود، خروج
 
     audio = message.audio
-    title = audio.title or "Unknown Title"
-    singer = audio.performer or "Unknown Singer"
-    file_id = audio.file_reference.hex()
+
+    # مقادیر پیش‌فرض
+    title = "Unknown Title"
+    singer = "Unknown Singer"
     duration = audio.duration
+
+    # استخراج اطلاعات از attributes
+    for attr in audio.attributes:
+        if isinstance(attr, DocumentAttributeAudio):
+            title = attr.title or title
+            singer = attr.performer or singer
+
+    file_id = audio.file_reference.hex()
     channel = await event.get_chat()
     channel_username = channel.username or "Private Channel"
     message_id = message.id
@@ -28,5 +37,5 @@ async def handle_new_song(event, client):
     await asyncio.sleep(0.5)
     await message.delete()
 
-    # ثبت در دیتابیس
+    # ذخیره آهنگ در دیتابیس
     add_song(title, singer, file_id, duration, channel_username, message_id)
