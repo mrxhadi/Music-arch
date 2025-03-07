@@ -1,20 +1,24 @@
 import os
 import shutil
-from aiogram import types
+from aiogram import types, Bot
 
 DB_PATH = "songs.json"
 
-async def send_database(message: types.Message):
+async def send_database(message: types.Message, bot: Bot):
     if os.path.exists(DB_PATH):
-        await message.reply_document(types.InputFile(DB_PATH))
+        await bot.send_document(
+            chat_id=message.chat.id,
+            document=types.FSInputFile(DB_PATH),
+            caption="Here is the current database."
+        )
     else:
-        await message.reply("Database file not found.")
+        await message.answer("Database file not found.")
 
-async def update_database(message: types.Message):
-    document = message.document
-    if document.file_name == "songs.json":
-        file_path = await document.download()
-        shutil.move(file_path.name, DB_PATH)
-        await message.reply("Database updated successfully.")
+async def update_database(message: types.Message, bot: Bot):
+    if message.document and message.document.file_name == "songs.json":
+        file = await bot.download(message.document)
+        with open(DB_PATH, "wb") as f:
+            f.write(file.read())
+        await message.answer("Database updated successfully.")
     else:
-        await message.reply("Invalid file. Please send 'songs.json'.")
+        await message.answer("Invalid file. Please send 'songs.json'.")
