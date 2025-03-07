@@ -7,13 +7,10 @@ X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
 async def forward_to_inlinebot(client):
     # استفاده از آیدی عددی کانال x_archive
     channel = await client.get_entity(X_ARCHIVE_CHANNEL_ID)
-    
-    # دریافت پیام‌های آخر از کانال
     messages = await client.get_messages(channel, limit=10)
 
     for message in messages:
-        # فقط پیام‌هایی که شامل فایل صوتی هستند (آهنگ‌ها)
-        if message.audio:
+        if message.audio:  # فقط آهنگ‌ها
             try:
                 # ارسال به پیوی Inlinebot
                 await client.send_message(
@@ -24,9 +21,6 @@ async def forward_to_inlinebot(client):
             except Exception as e:
                 print(f"Error forwarding song {message.id}: {e}")
 
-# اجرای تابع
-async def main(client):
-    await forward_to_inlinebot(client)
-
-# برای استفاده از این تابع در پروژه
-await main(client)
+# تابع اصلی برای فراخوانی
+async def forward_files(client):
+    await forward_to_inlinebot(client)  # فراخوانی تابع فوروارد
