@@ -3,7 +3,7 @@ import json
 from aiogram.types import Document
 from database.songs_db import add_song
 
-X_ARCHIVE_CHANNEL_ID = int(os.getenv("X_ARCHIVE_CHANNEL_ID"))
+GROUP_ID = int(os.getenv("GROUP_ID"))
 
 async def handle_new_song(event, client):
     message = event.message
