@@ -3,39 +3,43 @@ import random
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from database.songs_db import load_songs
 
-CHANNEL_1111 = os.getenv("CHANNEL_1111")
+CHANNEL_1111 = os.getenv("CHANNEL_1111")  # آیدی عددی کانال
+DB_PATH = "songs.json"
+FALLBACK_USERNAME = "elevenhtg"  # یوزرنیم کانال در صورت مشکل با آیدی عددی
 
 async def send_nightly_songs(client):
     songs = load_songs()
-    
+
     if len(songs) < 3:
-        print("Not enough songs in the database to send.")
+        print("[NIGHTLY JOB] Not enough songs in the database to send.")
         return
 
     selected_songs = random.sample(songs, 3)
 
     for song in selected_songs:
         try:
+            # تست دریافت آیدی عددی
+            try:
+                entity = await client.get_input_entity(CHANNEL_1111)
+            except Exception as e:
+                print(f"[NIGHTLY JOB] Failed to get entity by ID {CHANNEL_1111}, trying username... Error: {e}")
+                entity = await client.get_input_entity(FALLBACK_USERNAME)
+
+            print(f"[NIGHTLY JOB] Sending to channel: {entity}")
+
             await client.send_file(
-                CHANNEL_1111,
+                entity,
                 file=song["file_id"],
                 caption=f'{song["title"]} - {song["singer"]}'
             )
         except Exception as e:
-            print(f"Error sending song {song['title']}: {e}")
+            print(f"[NIGHTLY JOB] Error sending song {song['title']}: {e}")
 
-async def handle_nightly_command(event, client):
-    """ اجرای دستی نایتلی جاب با دستور /nightly """
-    if event.sender_id == int(os.getenv("ADMIN_ID")):
-        await event.reply("Running nightly job now...")
-        await send_nightly_songs(client)
-    else:
-        await event.reply("You are not authorized to use this command.")
 
 def start_nightly_job(client):
     scheduler = AsyncIOScheduler(timezone="Asia/Tehran")
-    
-    # ارسال ۳ آهنگ رندوم در ساعت ۱۱:۱۱ شب
+
+    # ارسال ۳ آهنگ رندوم
     scheduler.add_job(
         send_nightly_songs,
         trigger="cron",
