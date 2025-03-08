@@ -7,7 +7,7 @@ from database.songs_db import add_song, load_songs
 from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
 from handlers.delete_handler import handle_deleted_message
-from scheduler.nightly_job import start_nightly_job
+from scheduler.nightly_job import start_nightly_job, send_nightly_songs
 from handlers.rebuild_handler import rebuild_database
 
 load_dotenv()
@@ -30,7 +30,7 @@ async def admin_commands_handler(event):
     print(f"[USERBOT] Admin command received from {event.sender_id}")
 
     # بررسی ارسال فایل دیتابیس
-    if event.document and event.file and event.file.name == "songs.json":
+    if event.document:
         await handle_admin_commands(event, client)
         return
 
@@ -39,6 +39,9 @@ async def admin_commands_handler(event):
         await handle_admin_commands(event, client)
     elif event.text == "/rebuild":
         await rebuild_database(client, event)
+    elif event.text == "/nightly":
+        await event.reply("Running nightly job now...")
+        await send_nightly_songs(client)  # اجرای فوری ارسال شبانه آهنگ‌ها
     else:
         await event.reply("Unknown command.")
 
