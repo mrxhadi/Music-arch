@@ -20,13 +20,20 @@ async def send_nightly_songs(client):
             channel_id = song["channel_id"]
             message_id = song["message_id"]
 
-            # دریافت چنل و پیام
+            # تست گرفتن اطلاعات چنل
             try:
                 entity = await client.get_entity(channel_id)
             except (ValueError, PeerIdInvalidError):
-                print(f"[NIGHTLY JOB] Failed to get entity for channel {channel_id}. Skipping...")
-                continue
+                print(f"[NIGHTLY JOB] Failed to get entity for channel {channel_id}. Refreshing cache...")
+                await client.get_dialogs()  # ریفرش لیست چنل‌ها
+                await asyncio.sleep(2)  # تاخیر کوتاه برای جلوگیری از ریکوئست زیاد
+                try:
+                    entity = await client.get_entity(channel_id)
+                except Exception:
+                    print(f"[NIGHTLY JOB] Still cannot get entity for {channel_id}. Skipping...")
+                    continue
 
+            # دریافت پیام آهنگ
             try:
                 message = await client.get_messages(entity, ids=message_id)
             except ChannelPrivateError:
@@ -39,7 +46,7 @@ async def send_nightly_songs(client):
             if not message or not message.audio:
                 print(f"[NIGHTLY JOB] Message {message_id} in {channel_id} is not an audio. Skipping...")
                 continue
-            
+
             await client.send_file(
                 CHANNEL_1111,
                 file=message.media,
