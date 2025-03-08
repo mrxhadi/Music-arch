@@ -4,7 +4,6 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from database.songs_db import load_songs
 
 CHANNEL_1111 = int(os.getenv("CHANNEL_1111"))
-DB_PATH = "songs.json"
 
 async def send_nightly_songs(client):
     songs = load_songs()
@@ -17,13 +16,18 @@ async def send_nightly_songs(client):
 
     for song in selected_songs:
         try:
-            await client.send_file(
-                CHANNEL_1111,
-                file=song["file_id"],
-                caption=f'{song["title"]} - {song["singer"]}'
-            )
+            message = await client.get_messages(song["channel_id"], ids=song["message_id"])
+            if message and message.media:
+                await client.send_file(
+                    CHANNEL_1111,
+                    file=message.media,
+                    caption=f'{song["title"]} - {song["singer"]}'
+                )
+                print(f"[NIGHTLY JOB] Sent song: {song['title']}")
+            else:
+                print(f"[NIGHTLY JOB] No media found in message {song['message_id']}")
         except Exception as e:
-            print(f"[NIGHTLY JOB] Error sending song {song['title']}: {e}")
+            print(f"[NIGHTLY JOB] Error retrieving song {song['title']}: {e}")
 
 
 def start_nightly_job(client):
