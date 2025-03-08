@@ -1,6 +1,5 @@
 import asyncio
 import os
-import shutil
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from dotenv import load_dotenv
@@ -18,11 +17,6 @@ API_HASH = os.getenv("API_HASH")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 SESSION_STRING = os.getenv("SESSION_STRING")
 
-# Clear Telethon cache before starting
-for cache_folder in ["__pycache__", ".telethon", "__telethon__"]:
-    if os.path.exists(cache_folder):
-        shutil.rmtree(cache_folder)
-
 client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
 
 
@@ -33,6 +27,9 @@ async def new_message_handler(event):
 
 @client.on(events.NewMessage(from_users=ADMIN_ID))
 async def admin_commands_handler(event):
+    if not event.is_private:
+        return  # Ignore commands outside private chat with admin
+
     print(f"[USERBOT] Admin command received from {event.sender_id}")
 
     if event.document:
