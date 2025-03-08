@@ -4,12 +4,21 @@ from telethon.tl.types import DocumentAttributeAudio
 from database.songs_db import load_songs, add_song, remove_song
 
 GROUP_ID = int(os.getenv("GROUP_ID"))
+CHANNEL_1111 = int(os.getenv("CHANNEL_1111"))  # چنل ۱۱:۱۱
+EXCLUDED_CHANNELS = {GROUP_ID, CHANNEL_1111}  # چنل‌های مستثنی شده
 
 async def handle_new_song(event, client):
     message = event.message
 
     if not message.audio:
         return  # Ignore non-audio messages
+
+    chat_id = event.chat_id
+
+    # اگر آهنگ در چنل مشترک یا چنل ۱۱:۱۱ بود، هیچ کاری نکن
+    if chat_id in EXCLUDED_CHANNELS:
+        print(f"[USERBOT] Ignoring message from excluded channel {chat_id}")
+        return
 
     audio = message.document
     title = "Unknown Title"
@@ -23,7 +32,6 @@ async def handle_new_song(event, client):
             duration = attr.duration or duration
 
     file_id = audio.file_reference.hex()
-    chat_id = event.chat_id
     message_id = message.id
 
     songs = load_songs()
