@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from database.songs_db import load_songs
 from handlers.rebuild_handler import rebuild_database
+from scheduler.nightly_job import send_nightly_songs  # ایمپورت تابع ارسال شبانه
 from telethon.tl.types import DocumentAttributeFilename
 
 load_dotenv()
@@ -43,6 +44,12 @@ async def handle_admin_commands(event, client):
         print("[USERBOT] Processing '/rebuild' command...")
         await event.reply("Rebuilding the database, please wait...")
         await rebuild_database(client, event)
+        return
+
+    if event.text == "/nightly":
+        print("[USERBOT] Manually triggering nightly job...")
+        await event.reply("Running nightly job...")
+        await send_nightly_songs(client)  # اجرای دستی ارسال شبانه
         return
 
     print("[USERBOT] Unknown command received.")
