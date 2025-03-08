@@ -51,7 +51,6 @@ async def send_nightly_songs(client):
             await client.send_file(
                 CHANNEL_1111,
                 file=message.media,
-                caption=f'{song["title"]} - {song["singer"]}'
             )
             print(f"[NIGHTLY JOB] Successfully sent {song['title']}.")
 
