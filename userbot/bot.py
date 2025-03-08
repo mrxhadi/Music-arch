@@ -1,5 +1,6 @@
 import asyncio
 import os
+import shutil
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from dotenv import load_dotenv
@@ -17,6 +18,11 @@ API_HASH = os.getenv("API_HASH")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 SESSION_STRING = os.getenv("SESSION_STRING")
 
+# Clear Telethon cache before starting
+for cache_folder in ["__pycache__", ".telethon", "__telethon__"]:
+    if os.path.exists(cache_folder):
+        shutil.rmtree(cache_folder)
+
 client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
 
 
@@ -29,21 +35,19 @@ async def new_message_handler(event):
 async def admin_commands_handler(event):
     print(f"[USERBOT] Admin command received from {event.sender_id}")
 
-    # بررسی ارسال فایل دیتابیس
     if event.document:
         await handle_admin_commands(event, client)
         return
 
-    # بررسی دستورات متنی
     if event.text == "/list":
         await handle_admin_commands(event, client)
     elif event.text == "/rebuild":
         await rebuild_database(client, event)
     elif event.text == "/nightly":
         await event.reply("Running nightly job now...")
-        await send_nightly_songs(client)  # اجرای فوری ارسال شبانه آهنگ‌ها
+        await send_nightly_songs(client)
     else:
-        await event.reply("Unknown command.")
+        print(f"[USERBOT] Unknown command received: {event.text}")
 
 
 @client.on(events.MessageDeleted())
