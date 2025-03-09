@@ -45,7 +45,7 @@ async def group_message_handler(message: Message):
     await handle_new_song(message)
 
 # هندلر پیام‌های خصوصی برای جستجو
-@router.message(F.chat.type == "private")
+@router.message
 async def private_message_handler(message: Message):
     user_id = message.from_user.id
     lang = get_user_language(user_id)
