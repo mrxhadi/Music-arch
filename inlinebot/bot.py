@@ -13,7 +13,7 @@ from handlers.inline_query_handler import handle_inline_query
 from handlers.command_handler import register_commands
 from handlers.search_handler import search_command_handler, process_search_query, category_selection_callback, song_selection_callback
 from handlers.language_handler import send_language_selection, language_callback_handler
-from database.user_database import get_user_language
+from database.user_db import get_user_language
 
 load_dotenv()
 
