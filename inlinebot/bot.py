@@ -11,7 +11,7 @@ from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
 from handlers.inline_query_handler import handle_inline_query
 from handlers.command_handler import register_commands
-from handlers.search_handler import handle_search
+from handlers.search_handler import search_command_handler, process_search_query, category_selection_callback, song_selection_callback
 from handlers.language_handler import handle_language_selection, process_language_callback
 from database.user_database import get_user_language
 
@@ -44,7 +44,7 @@ async def group_message_handler(message: Message):
     print(f"[GROUP] Received new message in group from {message.from_user.id}")
     await handle_new_song(message)
 
-# هندلر پیام‌های خصوصی برای پردازش جستجو و زبان
+# هندلر پیام‌های خصوصی برای جستجو
 @router.message(F.chat.type == "private")
 async def private_message_handler(message: Message):
     user_id = message.from_user.id
@@ -54,12 +54,18 @@ async def private_message_handler(message: Message):
         print(f"[USER] Unknown command received: {message.text}")
         return
 
-    await handle_search(message, bot)
+    await search_command_handler(message, bot)
 
 # هندلر دکمه‌های انتخاب زبان
 @router.callback_query(F.data.startswith("set_lang_"))
 async def language_callback_handler(callback_query: CallbackQuery):
     await process_language_callback(callback_query, bot)
+
+# ثبت هندلرهای مرتبط با جستجو
+dp.message.register(search_command_handler, commands=["search"])
+dp.message.register(process_search_query, state="awaiting_search_query")
+dp.callback_query.register(category_selection_callback, F.data.in_(["search_songs", "search_artists"]))
+dp.callback_query.register(song_selection_callback, F.data.startswith("song_"))
 
 # هندلر اینلاین مود
 @dp.inline_query()
