@@ -1,10 +1,18 @@
 from aiogram import Router, F
+from aiogram.filters import StateFilter
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from database.user_db import get_user_language
 from utils.search import search_songs
 
 router = Router()
+
+# تعریف استیت‌های مورد نیاز برای FSM
+class SearchStates(StatesGroup):
+    awaiting_search_query = State()
+    awaiting_category_selection = State()
+    awaiting_song_selection = State()
 
 @router.message(F.text == "/search")
 async def search_command_handler(message: Message, state: FSMContext):
@@ -18,10 +26,9 @@ async def search_command_handler(message: Message, state: FSMContext):
     }
 
     await message.answer(texts.get(lang, texts["en"]))
-    await state.set_state("awaiting_search_query")
+    await state.set_state(SearchStates.awaiting_search_query)
 
-
-@router.message(F.text, state="awaiting_search_query")
+@router.message(F.text, StateFilter(SearchStates.awaiting_search_query))
 async def process_search_query(message: Message, state: FSMContext):
     """Process the search query and return results."""
     user_id = message.from_user.id
@@ -43,7 +50,6 @@ async def process_search_query(message: Message, state: FSMContext):
         }
     }
 
-    # جستجو در دیتابیس
     song_results = search_songs(query, search_by="title")
     artist_results = search_songs(query, search_by="singer")
 
@@ -61,10 +67,9 @@ async def process_search_query(message: Message, state: FSMContext):
     )
 
     await message.answer(texts[lang]["select_category"], reply_markup=keyboard)
-    await state.set_state("awaiting_category_selection")
+    await state.set_state(SearchStates.awaiting_category_selection)
 
-
-@router.callback_query(F.data.in_(["search_songs", "search_artists"]))
+@router.callback_query(F.data.in_(["search_songs", "search_artists"]), StateFilter(SearchStates.awaiting_category_selection))
 async def category_selection_callback(call: CallbackQuery, state: FSMContext):
     """Handle category selection."""
     user_id = call.from_user.id
@@ -101,10 +106,9 @@ async def category_selection_callback(call: CallbackQuery, state: FSMContext):
     )
 
     await call.message.answer(prompt_text, reply_markup=keyboard)
-    await state.set_state("awaiting_song_selection")
+    await state.set_state(SearchStates.awaiting_song_selection)
 
-
-@router.callback_query(F.data.startswith("song_"))
+@router.callback_query(F.data.startswith("song_"), StateFilter(SearchStates.awaiting_song_selection))
 async def song_selection_callback(call: CallbackQuery, state: FSMContext):
     """Send the selected song to the user."""
     message_id = call.data.replace("song_", "")
