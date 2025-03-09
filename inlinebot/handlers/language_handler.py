@@ -1,17 +1,22 @@
-from aiogram import types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Router, F
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from database.user_db import set_user_language, get_user_language
 
-async def send_language_selection(message: types.Message):
+router = Router()
+
+@router.message(F.text == "/language")
+async def send_language_selection(message: Message):
     """ارسال منوی انتخاب زبان به کاربر"""
-    keyboard = InlineKeyboardMarkup(row_width=2)
-    keyboard.add(
-        InlineKeyboardButton("English 🇬🇧", callback_data="lang_en"),
-        InlineKeyboardButton("فارسی 🇮🇷", callback_data="lang_fa")
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton("English 🇬🇧", callback_data="lang_en")],
+            [InlineKeyboardButton("فارسی 🇮🇷", callback_data="lang_fa")]
+        ]
     )
     await message.answer("Please select your language:\nلطفاً زبان خود را انتخاب کنید:", reply_markup=keyboard)
 
-async def language_callback_handler(callback_query: types.CallbackQuery):
+@router.callback_query(F.data.startswith("lang_"))
+async def language_callback_handler(callback_query: CallbackQuery):
     """ذخیره زبان انتخاب‌شده توسط کاربر"""
     user_id = callback_query.from_user.id
     selected_lang = callback_query.data.split("_")[1]  # گرفتن en یا fa
