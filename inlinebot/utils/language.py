@@ -3,6 +3,21 @@ import os
 
 LANG_DB_PATH = "language_settings.json"
 
+messages = {
+    "en": {
+        "start": "Welcome! Choose a language:",
+        "help": "This bot allows you to search for songs...",
+        "search_prompt": "Send the song name or artist:",
+        "not_found": "No results found.",
+    },
+    "fa": {
+        "start": "خوش آمدید! لطفاً زبان را انتخاب کنید:",
+        "help": "این ربات به شما امکان جستجوی آهنگ‌ها را می‌دهد...",
+        "search_prompt": "نام آهنگ یا خواننده را ارسال کنید:",
+        "not_found": "نتیجه‌ای یافت نشد.",
+    }
+}
+
 def load_languages():
     """Load user language preferences from file."""
     if not os.path.exists(LANG_DB_PATH):
@@ -25,3 +40,7 @@ def set_user_language(user_id, language_code):
     languages = load_languages()
     languages[str(user_id)] = language_code
     save_languages(languages)
+
+def get_message(key, lang="en"):
+    """Returns the message in the selected language."""
+    return messages.get(lang, messages["en"]).get(key, "Message not found.")
