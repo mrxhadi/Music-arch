@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.dispatcher import Dispatcher
+from aiogram import Dispatcher
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from utils.language import get_message
