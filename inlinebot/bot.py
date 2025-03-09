@@ -1,7 +1,7 @@
 import asyncio
 import os
 from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -10,6 +10,10 @@ from dotenv import load_dotenv
 from handlers.message_handler import handle_new_song
 from handlers.admin_handler import handle_admin_commands
 from handlers.inline_query_handler import handle_inline_query
+from handlers.command_handler import register_commands
+from handlers.search_handler import handle_search
+from handlers.language_handler import handle_language_selection, process_language_callback
+from database.user_database import get_user_language
 
 load_dotenv()
 
@@ -25,6 +29,9 @@ dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 dp.include_router(router)
 
+# ثبت دستورات در Dispatcher
+register_commands(dp)
+
 # هندلر ادمین برای پیوی (دستورات و مدیریت دیتابیس)
 @router.message(F.chat.type == "private", F.chat.id == ADMIN_ID)
 async def admin_command_handler(message: Message):
@@ -37,10 +44,22 @@ async def group_message_handler(message: Message):
     print(f"[GROUP] Received new message in group from {message.from_user.id}")
     await handle_new_song(message)
 
-# سایر پیام‌های بی‌اهمیت (لاگ ساده)
-@router.message()
-async def log_unknown_messages(message: Message):
-    print(f"[INLINEBOT] Ignored message from chat ID: {message.chat.id}")
+# هندلر پیام‌های خصوصی برای پردازش جستجو و زبان
+@router.message(F.chat.type == "private")
+async def private_message_handler(message: Message):
+    user_id = message.from_user.id
+    lang = get_user_language(user_id)
+
+    if message.text.startswith("/"):
+        print(f"[USER] Unknown command received: {message.text}")
+        return
+
+    await handle_search(message, bot)
+
+# هندلر دکمه‌های انتخاب زبان
+@router.callback_query(F.data.startswith("set_lang_"))
+async def language_callback_handler(callback_query: CallbackQuery):
+    await process_language_callback(callback_query, bot)
 
 # هندلر اینلاین مود
 @dp.inline_query()
