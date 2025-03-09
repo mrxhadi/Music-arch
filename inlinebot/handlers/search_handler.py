@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database.user_db import get_user_language
 from utils.search import search_songs
