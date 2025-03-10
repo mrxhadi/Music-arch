@@ -6,13 +6,13 @@ LANG_DB_PATH = "language_settings.json"
 messages = {
     "en": {
         "start": "Welcome! Choose a language:",
-        "help": "This bot allows you to search for songs...",
+        "help": "/search - Search for a song or artist. After sending this command, send the song title or artist name to find relevant results.",
         "search_prompt": "Send the song name or artist:",
         "not_found": "No results found.",
     },
     "fa": {
         "start": "خوش آمدید! لطفاً زبان را انتخاب کنید:",
-        "help": "این ربات به شما امکان جستجوی آهنگ‌ها را می‌دهد...",
+        "help": "/search - جستجوی آهنگ یا خواننده. پس از ارسال این دستور، نام آهنگ یا خواننده را ارسال کنید تا نتایج مرتبط نمایش داده شود.",
         "search_prompt": "نام آهنگ یا خواننده را ارسال کنید:",
         "not_found": "نتیجه‌ای یافت نشد.",
     }
