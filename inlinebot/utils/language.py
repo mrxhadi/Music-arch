@@ -7,7 +7,7 @@ messages = {
     "en": {
         "start": "Welcome! Choose a language:",
         "help": "/search - Search for a song or artist. After sending this command, send the song title or artist name to find relevant results.",
-        "search_prompt": "Send the song name or artist:",
+        "search_prompt": "Send the song title or artist:",
         "not_found": "No results found.",
     },
     "fa": {
