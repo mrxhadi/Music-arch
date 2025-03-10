@@ -1,3 +1,4 @@
+import logging
 from aiogram import Router, F
 from aiogram.filters import StateFilter
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
@@ -5,6 +6,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from database.user_db import get_user_language
 from utils.search import search_songs
+
+# تنظیم لاگ‌ها
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = Router()
 
@@ -20,6 +25,8 @@ async def search_command_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     lang = get_user_language(user_id)
 
+    logger.info(f"[SEARCH] User {user_id} started search.")
+
     texts = {
         "en": "Send the name of a song or artist:",
         "fa": "نام آهنگ یا خواننده را ارسال کنید:"
@@ -34,6 +41,8 @@ async def process_search_query(message: Message, state: FSMContext):
     user_id = message.from_user.id
     lang = get_user_language(user_id)
     query = message.text.strip()
+
+    logger.info(f"[SEARCH] Processing search query from user {user_id}: {query}")
 
     texts = {
         "en": {
@@ -54,6 +63,7 @@ async def process_search_query(message: Message, state: FSMContext):
     artist_results = search_songs(query, search_by="singer")
 
     if not song_results and not artist_results:
+        logger.info(f"[SEARCH] No results found for user {user_id}")
         await message.answer(texts[lang]["no_results"])
         return
 
@@ -76,6 +86,8 @@ async def category_selection_callback(call: CallbackQuery, state: FSMContext):
     lang = get_user_language(user_id)
     data = await state.get_data()
 
+    logger.info(f"[SEARCH] User {user_id} selected category: {call.data}")
+
     texts = {
         "en": {
             "choose_song": "Select a song:",
@@ -97,6 +109,7 @@ async def category_selection_callback(call: CallbackQuery, state: FSMContext):
         prompt_text = texts[lang]["choose_artist"]
 
     if not results:
+        logger.info(f"[SEARCH] No results available for category: {call.data}")
         await call.message.answer(texts[lang]["no_results"])
         return
 
@@ -115,6 +128,8 @@ async def song_selection_callback(call: CallbackQuery, state: FSMContext):
     user_id = call.from_user.id
     lang = get_user_language(user_id)
 
+    logger.info(f"[SEARCH] User {user_id} selected song with message_id: {message_id}")
+
     texts = {
         "en": "Here is your requested song:",
         "fa": "آهنگ درخواستی شما:",
@@ -124,8 +139,10 @@ async def song_selection_callback(call: CallbackQuery, state: FSMContext):
     song = next((s for s in songs if str(s["message_id"]) == message_id), None)
 
     if not song:
+        logger.error(f"[SEARCH] Song not found for message_id: {message_id}")
         await call.message.answer(texts[lang] + " ❌")
         return
 
     await call.message.answer_audio(song["file_id"], caption=f"{song['title']} - {song['singer']}")
     await state.clear()
+    logger.info(f"[SEARCH] Sent song {song['title']} to user {user_id}")
