@@ -21,7 +21,7 @@ async def send_language_selection(message: Message):
     logger.info(f"[LANGUAGE] Sent language selection menu to user {message.from_user.id}")
     await message.answer("Please select your language:\nلطفاً زبان خود را انتخاب کنید:", reply_markup=keyboard)
 
-@router.callback_query(F.data.startswith("lang_"))
+@router.callback_query(F.data.startswith("set_lang_"))
 async def language_callback_handler(callback_query: CallbackQuery):
     """ذخیره زبان انتخاب‌شده توسط کاربر"""
     user_id = callback_query.from_user.id
