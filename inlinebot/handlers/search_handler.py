@@ -23,8 +23,7 @@ class SearchStates(StatesGroup):
 async def search_command_handler(message: Message, state: FSMContext):
     """Handle the /search command."""
     user_id = message.from_user.id
-    lang = get_user_language(user_id)
-
+    lang = get_user_language(user_id) or "en"  # مقدار پیش‌فرض
     logger.info(f"[SEARCH] User {user_id} started search.")
 
     texts = {
@@ -39,9 +38,8 @@ async def search_command_handler(message: Message, state: FSMContext):
 async def process_search_query(message: Message, state: FSMContext):
     """Process the search query and return results."""
     user_id = message.from_user.id
-    lang = get_user_language(user_id)
+    lang = get_user_language(user_id) or "en"
     query = message.text.strip()
-
     logger.info(f"[SEARCH] Processing search query from user {user_id}: {query}")
 
     texts = {
@@ -59,8 +57,8 @@ async def process_search_query(message: Message, state: FSMContext):
         }
     }
 
-    song_results = search_songs(query, search_by="title")
-    artist_results = search_songs(query, search_by="singer")
+    song_results = search_songs(query, search_by="title")[:5]  # محدود به ۵ نتیجه
+    artist_results = search_songs(query, search_by="singer")[:5]
 
     if not song_results and not artist_results:
         logger.info(f"[SEARCH] No results found for user {user_id}")
@@ -83,7 +81,7 @@ async def process_search_query(message: Message, state: FSMContext):
 async def category_selection_callback(call: CallbackQuery, state: FSMContext):
     """Handle category selection."""
     user_id = call.from_user.id
-    lang = get_user_language(user_id)
+    lang = get_user_language(user_id) or "en"
     data = await state.get_data()
 
     logger.info(f"[SEARCH] User {user_id} selected category: {call.data}")
@@ -126,7 +124,7 @@ async def song_selection_callback(call: CallbackQuery, state: FSMContext):
     """Send the selected song to the user."""
     message_id = call.data.replace("song_", "")
     user_id = call.from_user.id
-    lang = get_user_language(user_id)
+    lang = get_user_language(user_id) or "en"
 
     logger.info(f"[SEARCH] User {user_id} selected song with message_id: {message_id}")
 
@@ -135,7 +133,7 @@ async def song_selection_callback(call: CallbackQuery, state: FSMContext):
         "fa": "آهنگ درخواستی شما:",
     }
 
-    songs = search_songs("", search_by="title")
+    songs = search_songs("", search_by="title")  # دریافت کل دیتابیس
     song = next((s for s in songs if str(s["message_id"]) == message_id), None)
 
     if not song:
