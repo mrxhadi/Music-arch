@@ -25,7 +25,7 @@ async def send_language_selection(message: Message):
 async def language_callback_handler(callback_query: CallbackQuery):
     """ذخیره زبان انتخاب‌شده توسط کاربر"""
     user_id = callback_query.from_user.id
-    selected_lang = callback_query.data.split("_")[1]  # گرفتن en یا fa
+    selected_lang = callback_query.data.replace("set_lang_", "") 
 
     logger.info(f"[LANGUAGE] Received callback from user {user_id}: {callback_query.data}")
 
