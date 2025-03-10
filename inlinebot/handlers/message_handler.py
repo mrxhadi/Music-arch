@@ -1,10 +1,7 @@
 from aiogram import types
 from database.songs_db import add_song
-from utils.language import get_user_language
 
 async def handle_new_song(message: types.Message):
-    user_language = get_user_language(message.from_user.id)  # دریافت زبان کاربر
-
     if message.audio:
         title = message.audio.title or "Unknown Title"
         singer = message.audio.performer or "Unknown Singer"
@@ -28,10 +25,5 @@ async def handle_new_song(message: types.Message):
     message_id = message.message_id
 
     add_song(title, singer, file_id, duration, channel_username, message_id)
+    print(f"[GROUP] New song added: {title} by {singer}")
     
-    response_messages = {
-        "en": f"[GROUP] New song added: {title} by {singer}",
-        "fa": f"[گروه] آهنگ جدید اضافه شد: {title} از {singer}"
-    }
-
-    print(response_messages.get(user_language, response_messages["en"]))
