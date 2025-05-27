@@ -120,4 +120,4 @@ with TelegramClient(StringSession(), api_id, api_hash) as client:
 ---
 
 # **Looking for me?**  
-## **Find me here: [t.me/@Im_Solaire](https://t.me/Im_Solaire)**  
+## **Find me here: [t.me/@ImLuckyLuke](https://t.me/ImLuckyLuke)**  
